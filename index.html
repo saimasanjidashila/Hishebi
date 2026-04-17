@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0b0b0d" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Hishebi" />
+<link rel="apple-touch-icon" href="./icon-192.png" />
+<title>Hishebi</title>
+<style>
+:root{
+  --bg:#0b0b0d;
+  --surface:#16171c;
+  --surface-2:#1d1f25;
+  --text:#f4f4f5;
+  --muted:#b3b8c5;
+  --border:#2b2f3a;
+  --accent:#3b82f6;
+  --good:#22c55e;
+  --bad:#ef4444;
+  --warn:#f59e0b;
+  --shadow:0 12px 28px rgba(0,0,0,.35);
+  --radius:16px;
+  --sheet-bg:#17191f;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+input,select,textarea{color:var(--text);background:var(--surface);border:1px solid var(--border)}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+.settings-panel .sheet{background:var(--sheet-bg) !important;opacity:1 !important}
+.app{max-width:760px;margin:0 auto;padding:14px 14px 110px}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;position:sticky;top:0;padding-top:6px;padding-bottom:10px;background:linear-gradient(to bottom,var(--bg) 75%,transparent);z-index:9}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;flex:1}
+.logo{width:38px;height:38px;border-radius:12px;background:var(--surface);display:grid;place-items:center;border:1px solid var(--border);box-shadow:var(--shadow)}
+.icon-btn{border:1px solid var(--border);background:var(--surface);color:var(--text);width:42px;height:42px;border-radius:14px;display:grid;place-items:center}
+.quick-add-card{padding-bottom:16px}
+.quick-expense-wrap{display:flex;gap:10px;align-items:center;background:var(--surface-2);border:1px solid var(--border);border-radius:18px;padding:10px;box-shadow:var(--shadow)}
+.quick-expense-wrap input{flex:1;border:none;background:transparent;outline:none;font-size:1rem;padding:4px 2px;color:var(--text)}
+.quick-expense-wrap input::placeholder{color:var(--muted)}
+.quick-submit{min-width:88px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.quick-hint{margin-top:8px;color:var(--muted);font-size:.92rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1}
+label{display:block;font-size:.87rem;color:var(--muted);margin-bottom:6px}
+input,select,textarea{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);outline:none}
+textarea{min-height:150px;resize:vertical}
+input::placeholder,textarea::placeholder{color:#98a1b3}
+button{cursor:pointer}
+.primary{background:var(--accent);color:white;border:none;padding:12px 14px;border-radius:12px;font-weight:700}
+.secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border);padding:11px 14px;border-radius:12px}
+.danger{background:rgba(239,68,68,.12);color:#fecaca;border:1px solid rgba(239,68,68,.25);padding:11px 14px;border-radius:12px}
+.small{padding:8px 10px;border-radius:10px;font-size:.9rem}
+.segment{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:var(--surface);padding:6px;border:1px solid var(--border);border-radius:16px;margin-bottom:12px}
+.segment button{background:transparent;color:var(--muted);border:none;padding:11px 8px;border-radius:12px;font-weight:700}
+.segment button.active{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+.summary-wrap{margin-bottom:12px}
+.summary-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.mini{position:relative;overflow:hidden}
+.mini-moves{position:absolute;top:8px;right:8px;display:flex;gap:6px}
+.move-btn{width:28px;height:28px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-weight:800;display:grid;place-items:center;cursor:pointer}
+.move-btn:active{transform:scale(.97)}
+.mini{padding:12px;border-radius:14px;background:var(--surface);border:1px solid var(--border)}
+.mini .k{font-size:.8rem;color:var(--muted)}
+.mini .v{font-size:1.15rem;font-weight:800;margin-top:6px}
+.section{display:none}
+.section.active{display:block}
+.list{display:grid;gap:8px;margin-top:10px}
+.item{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:11px 12px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border)}
+.item .meta{font-size:.84rem;color:var(--muted);margin-top:3px}
+.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--border);font-size:.76rem;color:var(--muted)}
+.hide{display:none !important}
+.settings-panel{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;z-index:99}
+.settings-panel.open{display:flex}
+.sheet{width:100%;max-width:760px;margin:0 auto;background:var(--sheet-bg);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--border);padding:16px;max-height:88vh;overflow:auto;opacity:1;box-shadow:0 -10px 30px rgba(0,0,0,.45)}
+.sheet h3{margin:0 0 10px}
+.hr{height:1px;background:var(--border);margin:14px 0}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.theme-btn{padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-weight:700}
+.theme-btn.active{outline:2px solid var(--accent)}
+.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.yearmonth{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.note{font-size:.84rem;color:var(--muted)}
+.install-banner{display:none;margin-bottom:10px}
+.install-banner.show{display:block}
+.notice{padding:10px 12px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border);color:var(--text)}
+
+@media (max-width:520px){
+  .cards{grid-template-columns:1fr 1fr}
+  .item{grid-template-columns:1fr auto;}
+  .item .deleteBtn{grid-column:2;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><div class="logo">📖</div><div>Hishebi</div></div>
+    <button class="icon-btn" id="installBtn" title="Add to Home Screen">＋</button>
+    <button class="icon-btn" id="settingsBtn" title="Settings">⚙️</button>
+  </div>
+
+  <div class="install-banner card" id="installBanner">
+    <div class="row" style="align-items:center">
+      <div style="flex:2">
+        <div style="font-weight:700">Add Hishebi to your phone screen</div>
+        <div class="note">Use Install if it appears, or your browser menu if it doesn’t.</div>
+      </div>
+      <div style="flex:1"><button class="primary small" id="installBannerBtn">Install</button></div>
+    </div>
+    <div class="notice" id="installManualNote" style="margin-top:8px">Use your browser menu to add Hishebi to your home screen if the install prompt does not appear.</div>
+  </div>
+
+  <div class="yearmonth">
+    <div>
+      <label>Month</label>
+      <select id="monthSelect"></select>
+    </div>
+    <div>
+      <label>Year</label>
+      <select id="yearSelect"></select>
+    </div>
+  </div>
+
+  <div class="summary-wrap card">
+    <div class="summary-head">
+      <div style="font-weight:800">Monthly summary</div>
+      <button class="secondary small" id="toggleSummaryBtn">Hide</button>
+    </div>
+    <div class="cards" id="summaryCards"></div>
+  </div>
+
+  <div class="segment">
+    <button class="active" data-tab="expenses">Expense</button>
+    <button data-tab="income">Income</button>
+    <button data-tab="work">Work</button>
+  </div>
+
+  <section class="section active" id="expensesSection">
+    <div class="card quick-add-card" style="margin-bottom:12px">
+      <div style="font-weight:800;margin-bottom:10px">Add expense</div>
+      <label>Type item and cost together</label>
+      <div class="quick-expense-wrap">
+        <input id="expQuickInput" placeholder="e.g. pizza 40" autocomplete="off" inputmode="text">
+        <button class="primary quick-submit" id="addExpenseBtn" title="Add expense">Enter</button>
+      </div>
+      <div class="quick-hint" id="expQuickHint">Item: — · Price: —</div>
+      <div class="row" style="margin-top:10px">
+        <div><label>Category</label><input id="expCategory" placeholder="Auto detected or type your own"></div>
+        <div><label>Date</label><input id="expDate" type="date"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="controls" style="margin-top:0">
+        <button class="secondary small" id="toggleCategoryBtn">Hide category</button>
+        <button class="secondary small" id="toggleItemsBtn">Hide item list</button>
+        <button class="secondary small" id="toggleAllExpensesBtn">Hide all expenses</button>
+      </div>
+      <div id="expensePanels">
+        <div id="categoryPanel">
+          <div style="font-weight:800;margin-top:8px">By category</div>
+          <div class="list" id="categoryList"></div>
+        </div>
+        <div id="itemsPanel">
+          <div style="font-weight:800;margin-top:14px">Expense items</div>
+          <div class="list" id="expenseList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="incomeSection">
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-weight:800;margin-bottom:10px">Add income</div>
+      <div class="row">
+        <div style="flex:1.6"><label>Source</label><input id="incSource" placeholder="Optional source"></div>
+        <div><label>Amount</label><input id="incAmount" type="number" step="0.01" min="0" placeholder="0.00"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>Date</label><input id="incDate" type="date"></div>
+      </div>
+      <div class="controls"><button class="primary" id="addIncomeBtn">Add income</button></div>
+    </div>
+    <div class="card"><div style="font-weight:800">Income log</div><div class="list" id="incomeList"></div></div>
+  </section>
+
+  <section class="section" id="workSection">
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-weight:800;margin-bottom:10px">Add work</div>
+      <div class="row">
+        <div style="flex:1.6"><label>Place</label><input id="workPlace" placeholder="Optional"></div>
+        <div><label>Hours</label><input id="workHours" type="number" step="0.01" min="0" placeholder="0.00"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>Rate per hour</label><input id="workRate" type="number" step="0.01" min="0" placeholder="Optional"></div>
+        <div><label>Date</label><input id="workDate" type="date"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>Fortnight starts on</label><select id="fortnightStartMode"><option value="monday">Monday (default)</option><option value="custom">Custom date</option></select></div>
+        <div><label>Custom start date</label><input id="fortnightCustomStart" type="date"></div>
+      </div>
+      <div class="controls"><button class="primary" id="addWorkBtn">Add work</button></div>
+      <div class="note" style="margin-top:8px">Fortnight runs Monday to Sunday by default unless you choose custom.</div>
+    </div>
+    <div class="card"><div style="font-weight:800">Work log</div><div class="list" id="workList"></div></div>
+  </section>
+</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <div class="sheet">
+    <div class="inline" style="justify-content:space-between;margin-bottom:8px">
+      <h3>Settings</h3>
+      <button class="secondary small" id="closeSettingsBtn">Close</button>
+    </div>
+
+    <div style="font-weight:800;margin-bottom:8px">Theme</div>
+    <div class="row">
+      <div><label>Mode</label><select id="themeModeSelect"><option value="night">Night mode</option><option value="light">White mode</option></select></div>
+      <div><label>Style</label><div class="note" style="margin-top:34px">Cleaner two-mode theme with softer contrast.</div></div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div style="font-weight:800;margin-bottom:8px">Dates</div>
+    <div class="row">
+      <div><label>Display format</label><select id="dateFormatSelect"><option value="dd-mm-yyyy">DD-MM-YYYY</option><option value="dd-mmm-yy">DD-MMM-YY</option></select></div>
+      <div><label>Recent labels</label><div class="note" style="margin-top:34px">Lists show Today / Yesterday where relevant.</div></div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div style="font-weight:800;margin-bottom:8px">Import</div>
+    <div class="row">
+      <div><label>Type</label><select id="importType"><option value="expenses">Expenses</option><option value="income">Income</option><option value="work">Work</option></select></div>
+      <div><label>Default year if missing</label><select id="importYear"></select></div>
+    </div>
+    <div style="margin-top:10px"><label>Paste lines</label><textarea id="importText" placeholder="Example:&#10;Mar 25 Onion 7 Clothes 20 Car 400 Intbill 50&#10;Apr 2 Burger 12 Fuel 40"></textarea></div>
+    <div class="controls"><button class="primary" id="runImportBtn">Import data</button></div>
+
+    <div class="hr"></div>
+
+    <div style="font-weight:800;margin-bottom:8px">Export</div>
+    <div class="controls">
+      <button class="secondary" id="exportExpensesBtn">Export expenses CSV</button>
+      <button class="secondary" id="exportIncomeBtn">Export income CSV</button>
+      <button class="secondary" id="exportWorkBtn">Export work CSV</button>
+      <button class="secondary" id="exportJsonBtn">Backup all data</button>
+    </div>
+
+    <div class="hr"></div>
+
+    <div style="font-weight:800;margin-bottom:8px">Google sync</div>
+    <div class="note">Paste your Firebase web app config once, then sign in with Google to sync Hishebi across devices.</div>
+    <div style="margin-top:10px"><label>Firebase web config (JSON)</label><textarea id="firebaseConfigText" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea></div>
+    <div class="controls">
+      <button class="secondary" id="saveFirebaseConfigBtn">Save config</button>
+      <button class="secondary" id="googleLoginBtn">Sign in with Google</button>
+      <button class="secondary" id="googleLogoutBtn">Sign out</button>
+    </div>
+    <div class="controls">
+      <button class="primary" id="syncUploadBtn">Sync this device to cloud</button>
+      <button class="secondary" id="syncDownloadBtn">Load cloud data to this device</button>
+    </div>
+    <div class="notice" id="syncStatusBox">Not connected.</div>
+
+    <div class="hr"></div>
+
+    <div style="font-weight:800;margin-bottom:8px">Clear data</div>
+    <div class="row">
+      <div><label>Scope</label><select id="clearScope"><option value="day">Delete a day</option><option value="week">Delete a week</option><option value="month">Delete a month</option><option value="all">Delete all data</option></select></div>
+      <div><label>Date reference</label><input type="date" id="clearDate"></div>
+    </div>
+    <div class="controls"><button class="danger" id="runClearBtn">Clear selected data</button></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+const STORAGE_KEY = 'hishebi_v19';
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const monthMap = {jan:0,feb:1,fev:1,mar:2,apr:3,may:4,jun:5,june:5,jul:6,july:6,aug:7,sep:8,sept:8,oct:9,nov:10,dec:11};
+let deferredPrompt = null;
+const today = new Date();
+const currentISO = today.toISOString().slice(0,10);
+const summaryCardMeta = {
+  expense:{label:'Expense', valueId:'sumExpense'},
+  income:{label:'Income', valueId:'sumIncome'},
+  hours:{label:'Hours worked', valueId:'sumHours', labelId:'sumHoursLabel'},
+  net:{label:'Net income', valueId:'sumNet'}
+};
+const state = loadState();
+
+function loadState(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  const base = {
+    expenses:[], income:[], work:[],
+    ui:{selectedMonth:today.getMonth(), selectedYear:today.getFullYear(), tab:'expenses', summaryOpen:true, showCategory:true, showItems:true, showAllExpenses:true, dateFormat:'dd-mm-yyyy', cardOrder:['expense','income','hours','net']},
+    theme:{mode:'night'},
+    workSettings:{mode:'monday', customStart:''},
+    sync:{firebaseConfig:'', lastSyncAt:'', lastSyncDirection:'', signedInEmail:''}
+  };
+  if(!raw) return base;
+  try{
+    const parsed = JSON.parse(raw);
+    return {...base, ...parsed, ui:{...base.ui,...parsed.ui, cardOrder:(parsed.ui&&parsed.ui.cardOrder)||base.ui.cardOrder}, theme:{...base.theme,...(parsed.theme&&parsed.theme.mode?parsed.theme:{mode:'night'})}, workSettings:{...base.workSettings,...(parsed.workSettings||{})}, sync:{...base.sync,...(parsed.sync||{})}};
+  }catch{ return base; }
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+function fmtMoney(n){ return '$'+(Number(n)||0).toFixed(2); }
+function esc(s){ return String(s||'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+function parseDateLocal(iso){ const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d); }
+function toISO(d){ return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); }
+function displayDate(iso){
+  if(!iso) return '';
+  const [y,m,d]=iso.split('-').map(Number);
+  if(!y||!m||!d) return iso;
+  if(state.ui.dateFormat==='dd-mmm-yy'){
+    const short=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${String(d).padStart(2,'0')}-${short[m-1]}-${String(y).slice(-2)}`;
+  }
+  return `${String(d).padStart(2,'0')}-${String(m).padStart(2,'0')}-${y}`;
+}
+function relativeDateLabel(iso){
+  if(!iso) return '';
+  const diff=Math.round((parseDateLocal(iso)-parseDateLocal(currentISO))/86400000);
+  if(diff===0) return 'Today';
+  if(diff===-1) return 'Yesterday';
+  return '';
+}
+function displayDateWithRecent(iso){
+  const rel=relativeDateLabel(iso);
+  const base=displayDate(iso);
+  return rel ? `${rel} • ${base}` : base;
+}
+
+let firebaseApp = null;
+let firebaseDb = null;
+let firebaseAuth = null;
+let firebaseUser = null;
+
+function updateSyncStatus(msg, kind='info'){
+  const box = document.getElementById('syncStatusBox');
+  if(!box) return;
+  box.textContent = msg;
+  box.style.borderColor = kind==='error' ? 'rgba(239,68,68,.35)' : 'var(--border)';
+}
+function getSyncPayload(){
+  return JSON.parse(JSON.stringify(state));
+}
+function canUseFirebase(){
+  return typeof window.firebase !== 'undefined' && firebaseApp && firebaseDb && firebaseAuth;
+}
+function applySignedInUser(user){
+  firebaseUser = user || null;
+  state.sync.signedInEmail = user && user.email ? user.email : '';
+  saveState();
+  const email = state.sync.signedInEmail;
+  if(email){
+    updateSyncStatus(`Signed in as ${email}${state.sync.lastSyncAt ? ` • Last sync ${state.sync.lastSyncDirection||''} ${state.sync.lastSyncAt}` : ''}`.trim());
+  } else {
+    updateSyncStatus(state.sync.firebaseConfig ? 'Firebase configured. Sign in with Google to sync.' : 'Paste Firebase config to enable Google sync.');
+  }
+}
+function initFirebaseFromSavedConfig(){
+  const raw = state.sync.firebaseConfig || '';
+  const textarea = document.getElementById('firebaseConfigText');
+  if(textarea) textarea.value = raw;
+  if(!raw.trim()) { applySignedInUser(null); return false; }
+  try{
+    const config = JSON.parse(raw);
+    if(!config.apiKey || !config.projectId || !config.appId) throw new Error('Missing required Firebase fields.');
+    if(firebase.apps && firebase.apps.length){
+      firebaseApp = firebase.apps[0];
+    } else {
+      firebaseApp = firebase.initializeApp(config);
+    }
+    firebaseDb = firebase.firestore();
+    firebaseAuth = firebase.auth();
+    firebaseAuth.onAuthStateChanged((user)=>applySignedInUser(user));
+    updateSyncStatus('Firebase configured. Sign in with Google to sync.');
+    return true;
+  }catch(err){
+    updateSyncStatus(`Firebase config error: ${err.message}`, 'error');
+    return false;
+  }
+}
+async function saveFirebaseConfig(){
+  const raw = (document.getElementById('firebaseConfigText')?.value || '').trim();
+  state.sync.firebaseConfig = raw;
+  saveState();
+  firebaseApp = null; firebaseDb = null; firebaseAuth = null; firebaseUser = null;
+  if(!raw){
+    updateSyncStatus('Firebase config cleared.');
+    return;
+  }
+  initFirebaseFromSavedConfig();
+}
+async function signInGoogle(){
+  if(!canUseFirebase()){
+    if(!initFirebaseFromSavedConfig()) return;
+  }
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt:'select_account'});
+    await firebaseAuth.signInWithPopup(provider);
+  }catch(err){
+    if(/popup/i.test(err.message || '')){
+      updateSyncStatus('Popup blocked. Try again or use a browser that allows Google sign-in popups.', 'error');
+    } else {
+      updateSyncStatus(`Google sign-in failed: ${err.message}`, 'error');
+    }
+  }
+}
+async function signOutGoogle(){
+  if(!firebaseAuth) return;
+  await firebaseAuth.signOut();
+  applySignedInUser(null);
+}
+async function syncUpload(){
+  if(!firebaseUser || !firebaseDb){ updateSyncStatus('Sign in with Google first.', 'error'); return; }
+  try{
+    const payload = getSyncPayload();
+    payload.sync = {...payload.sync, firebaseConfig: state.sync.firebaseConfig, signedInEmail: firebaseUser.email || '', lastSyncDirection:'uploaded', lastSyncAt:new Date().toISOString()};
+    await firebaseDb.collection('hishebiUsers').doc(firebaseUser.uid).collection('app').doc('main').set({
+      state: payload,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      email: firebaseUser.email || ''
+    }, {merge:true});
+    state.sync.lastSyncDirection='uploaded';
+    state.sync.lastSyncAt=displayDateWithRecent(toISO(new Date()));
+    saveState();
+    applySignedInUser(firebaseUser);
+    updateSyncStatus(`Cloud sync uploaded for ${firebaseUser.email || 'your account'}.`);
+  }catch(err){
+    updateSyncStatus(`Upload failed: ${err.message}`, 'error');
+  }
+}
+async function syncDownload(){
+  if(!firebaseUser || !firebaseDb){ updateSyncStatus('Sign in with Google first.', 'error'); return; }
+  try{
+    const snap = await firebaseDb.collection('hishebiUsers').doc(firebaseUser.uid).collection('app').doc('main').get();
+    if(!snap.exists){ updateSyncStatus('No cloud data found for this Google account.'); return; }
+    const data = snap.data() || {};
+    const remote = data.state || {};
+    const keepConfig = state.sync.firebaseConfig;
+    const keepTheme = state.theme;
+    Object.keys(state).forEach(k=>delete state[k]);
+    Object.assign(state, loadState(), remote);
+    state.sync = {...(remote.sync||{}), firebaseConfig: keepConfig, signedInEmail: firebaseUser.email || '', lastSyncDirection:'downloaded', lastSyncAt:displayDateWithRecent(toISO(new Date()))};
+    state.theme = {...keepTheme, ...(remote.theme||{})};
+    saveState();
+    renderAll();
+    applySignedInUser(firebaseUser);
+    updateSyncStatus(`Cloud data loaded for ${firebaseUser.email || 'your account'}.`);
+  }catch(err){
+    updateSyncStatus(`Download failed: ${err.message}`, 'error');
+  }
+}
+
+function startOfWeekMonday(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function categorizeItem(name){
+  const s=(name||'').toLowerCase();
+  const match=(arr)=>arr.some(x=>s.includes(x));
+  if(match(['rego','fuel','petrol','parking','tyre','tires','newtyres','car ','carparts','service','uber car','insurance'])) return 'Car';
+  if(match(['grocer','onion','rice','beef','lamb','chicken','meat','veg','vegetable','fruit','fish','milk','egg','dal','oil','salt','spice','mustard'])) return 'Groceries';
+  if(match(['mcd','burger','pizza','kfc','junk','biriyani','nehari','ramen','tehari','haleem','cookie','cake','pringles','wafer','chips'])) return 'Junk Food';
+  if(match(['chatgpt','gpt','icloud','netflix','spotify','phonebill','phone bill','phoneplan','intbill','internet','gasbill','electricity','bill','belong'])) return 'Bills';
+  if(match(['shirt','pant','jeans','shoe','shoes','tshirt','jacket','clothes'])) return 'Clothes';
+  if(match(['pipeclip','cutter','drill','tool','stapler','print','certificate','cert','ncc'])) return 'Tools & Certificates';
+  if(match(['club','drink','drinks','bar','prosti','entertainment'])) return 'Entertainment';
+  if(match(['gift','amma','ammu','mom','didi','irfan','rokon','treat'])) return 'Gift / Family';
+  if(match(['rent','bond'])) return 'Rent & Housing';
+  if(match(['metro','metropass','bus','buscard','uber'])) return 'Transport';
+  if(match(['lent ','loan '])) return 'Money Lent';
+  if(match(['charity'])) return 'Charity';
+  if(match(['costco','food','roti','juice','coke','chocolate','drink'])) return 'Food';
+  return 'Other';
+}
+function deriveTheme(){
+  const night = (state.theme.mode||'night') === 'night';
+  const vars = night ? {
+    bg:'#0b0b0d', text:'#f4f4f5', surface:'#16171c', surface2:'#1d1f25', border:'#2b2f3a', muted:'#b3b8c5', accent:'#4f8cff', sheet:'#17191f'
+  } : {
+    bg:'#f3f4f6', text:'#121417', surface:'#ffffff', surface2:'#eceff3', border:'#d8dde6', muted:'#5c6675', accent:'#275df0', sheet:'#ffffff'
+  };
+  document.documentElement.style.setProperty('--bg', vars.bg);
+  document.documentElement.style.setProperty('--text', vars.text);
+  document.documentElement.style.setProperty('--surface', vars.surface);
+  document.documentElement.style.setProperty('--surface-2', vars.surface2);
+  document.documentElement.style.setProperty('--border', vars.border);
+  document.documentElement.style.setProperty('--muted', vars.muted);
+  document.documentElement.style.setProperty('--accent', vars.accent);
+  document.documentElement.style.setProperty('--sheet-bg', vars.sheet);
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', vars.bg);
+}
+
+function renderSummaryCards(){
+  const wrap=document.getElementById('summaryCards');
+  const order=(state.ui.cardOrder&&state.ui.cardOrder.length)?state.ui.cardOrder:['expense','income','hours','net'];
+  wrap.innerHTML = order.map((key,idx)=>{
+    const meta=summaryCardMeta[key];
+    if(!meta) return '';
+    return `<div class="mini" data-card="${key}"><div class="mini-moves"><button class="move-btn" data-move="left" data-card="${key}" title="Move left">←</button><button class="move-btn" data-move="right" data-card="${key}" title="Move right">→</button></div><div class="k" ${meta.labelId?`id="${meta.labelId}"`:''}>${meta.label}</div><div class="v" id="${meta.valueId}">${key==='hours'?'0':'$0.00'}</div></div>`;
+  }).join('');
+  wrap.querySelectorAll('.move-btn').forEach(btn=>btn.addEventListener('click',()=>moveSummaryCard(btn.dataset.card, btn.dataset.move)));
+}
+
+function moveSummaryCard(card, dir){
+  const order=[...(state.ui.cardOrder||['expense','income','hours','net'])];
+  const idx=order.indexOf(card);
+  if(idx<0) return;
+  const swap = dir==='left' ? idx-1 : idx+1;
+  if(swap<0 || swap>=order.length) return;
+  [order[idx], order[swap]] = [order[swap], order[idx]];
+  state.ui.cardOrder = order;
+  saveState();
+  renderSummary();
+}
+
+function initSelectors(){
+  const monthSelect = document.getElementById('monthSelect');
+  const yearSelect = document.getElementById('yearSelect');
+  monthSelect.innerHTML = monthNames.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  const years=[]; for(let y=2020;y<=today.getFullYear()+1;y++) years.push(y);
+  yearSelect.innerHTML = years.map(y=>`<option value="${y}">${y}</option>`).join('');
+  document.getElementById('importYear').innerHTML = years.map(y=>`<option value="${y}">${y}</option>`).join('');
+  monthSelect.value = state.ui.selectedMonth;
+  yearSelect.value = state.ui.selectedYear;
+  document.getElementById('importYear').value = state.ui.selectedYear;
+}
+function setDefaultDates(){ ['expDate','incDate','workDate','clearDate'].forEach(id=>document.getElementById(id).value=currentISO); document.getElementById('fortnightCustomStart').value=state.workSettings.customStart||currentISO; }
+function switchTab(tab){ state.ui.tab=tab; saveState(); document.querySelectorAll('.segment button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab)); document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(tab+'Section').classList.add('active'); }
+function selectedMonthEntries(list){ return list.filter(x=>{ const d=parseDateLocal(x.date); return d.getMonth()===Number(state.ui.selectedMonth)&&d.getFullYear()===Number(state.ui.selectedYear); }); }
+function getWorkDisplayRange(){
+  if(state.workSettings.mode==='custom' && state.workSettings.customStart){
+    const start = parseDateLocal(state.workSettings.customStart);
+    start.setHours(0,0,0,0);
+    const end = addDays(start,13);
+    end.setHours(23,59,59,999);
+    return {start,end,label:`${displayDate(toISO(start))} to ${displayDate(toISO(end))}`};
+  }
+  return null;
+}
+function visibleWorkEntries(){
+  const range = getWorkDisplayRange();
+  if(range){
+    return state.work.filter(x=>{
+      const d=parseDateLocal(x.date);
+      return d>=range.start && d<=range.end;
+    });
+  }
+  return selectedMonthEntries(state.work);
+}
+function renderSummary(){
+  renderSummaryCards();
+  const exp = selectedMonthEntries(state.expenses).reduce((a,b)=> a + ((b.category==='Money Lent' && b.returned)?0:Number(b.amount||0)),0);
+  const inc = selectedMonthEntries(state.income).reduce((a,b)=>a+Number(b.amount||0),0);
+  const workEntries = visibleWorkEntries();
+  const hrs = workEntries.reduce((a,b)=>a+Number(b.hours||0),0);
+  document.getElementById('sumExpense').textContent=fmtMoney(exp);
+  document.getElementById('sumIncome').textContent=fmtMoney(inc);
+  document.getElementById('sumHours').textContent=hrs.toFixed(2).replace(/\.00$/,'');
+  document.getElementById('sumHoursLabel').textContent = getWorkDisplayRange() ? 'Hours worked (selected fortnight)' : 'Hours worked';
+  document.getElementById('sumNet').textContent=fmtMoney(inc-exp);
+  document.getElementById('summaryCards').classList.toggle('hide', !state.ui.summaryOpen);
+  document.getElementById('toggleSummaryBtn').textContent = state.ui.summaryOpen ? 'Hide' : 'Show';
+}
+function renderExpenses(){
+  const exps = selectedMonthEntries(state.expenses).sort((a,b)=>b.date.localeCompare(a.date));
+  const categories = {};
+  exps.forEach(x=>{ const val = (x.category==='Money Lent' && x.returned)?0:Number(x.amount||0); categories[x.category]=(categories[x.category]||0)+val; });
+  const catList = document.getElementById('categoryList');
+  catList.innerHTML = Object.keys(categories).sort().map(k=>`<div class="item"><div><div>${esc(k)}</div></div><div>${fmtMoney(categories[k])}</div></div>`).join('') || `<div class="note">No expenses for this month.</div>`;
+  const list = document.getElementById('expenseList');
+  list.innerHTML = exps.map(x=>`<div class="item"><div><div>${esc(x.item)}</div><div class="meta">${esc(displayDateWithRecent(x.date))} • <span class="pill">${esc(x.category)}</span>${x.category==='Money Lent'?` ${x.returned?'<span class="pill">Returned</span>':''}`:''}</div></div><div>${fmtMoney(x.amount)}</div><div><button class="danger small deleteBtn" onclick="deleteExpense('${x.id}')">Delete</button>${x.category==='Money Lent'?` <button class="secondary small" onclick="toggleReturned('${x.id}')">${x.returned?'Unreturn':'Returned'}</button>`:''}</div></div>`).join('') || `<div class="note">No expense items.</div>`;
+  document.getElementById('categoryPanel').classList.toggle('hide', !state.ui.showCategory);
+  document.getElementById('itemsPanel').classList.toggle('hide', !state.ui.showItems);
+  document.getElementById('expensePanels').classList.toggle('hide', !state.ui.showAllExpenses);
+}
+function renderIncome(){
+  const list = document.getElementById('incomeList');
+  const arr = selectedMonthEntries(state.income).sort((a,b)=>b.date.localeCompare(a.date));
+  list.innerHTML = arr.map(x=>`<div class="item"><div><div>${esc(x.source||'Income')}</div><div class="meta">${esc(displayDateWithRecent(x.date))}</div></div><div>${fmtMoney(x.amount)}</div><div><button class="danger small deleteBtn" onclick="deleteIncome('${x.id}')">Delete</button></div></div>`).join('') || `<div class="note">No income for this month.</div>`;
+}
+function renderWork(){
+  const list = document.getElementById('workList');
+  const arr = visibleWorkEntries().sort((a,b)=>b.date.localeCompare(a.date));
+  const range = getWorkDisplayRange();
+  const totalHours = arr.reduce((a,b)=>a+Number(b.hours||0),0);
+  const totalPay = arr.reduce((a,b)=>a+((b.rate?Number(b.rate):0)*Number(b.hours||0)),0);
+  const header = range
+    ? `<div class="item"><div><div>Selected fortnight</div><div class="meta">${esc(range.label)}</div></div><div>${totalHours.toFixed(2).replace(/\.00$/,'')} h${totalPay?` • ${fmtMoney(totalPay)}`:''}</div></div>`
+    : '';
+  list.innerHTML = header + (arr.map(x=>`<div class="item"><div><div>${esc(x.place||'Work')}</div><div class="meta">${esc(displayDateWithRecent(x.date))} • ${Number(x.hours).toFixed(2).replace(/\.00$/,'')} hrs${x.rate?` • ${fmtMoney(x.rate)}/hr`:''}${fortnightLabel(x.date)?` • <span class="pill">${esc(fortnightLabel(x.date))}</span>`:''}</div></div><div>${x.rate?fmtMoney(Number(x.rate)*Number(x.hours)):Number(x.hours).toFixed(2).replace(/\.00$/,'')+' h'}</div><div><button class="danger small deleteBtn" onclick="deleteWork('${x.id}')">Delete</button></div></div>`).join('') || `<div class="note">${range?'No work logs in this fortnight.':'No work logs for this month.'}</div>`);
+}
+function fortnightLabel(iso){
+  const d = parseDateLocal(iso);
+  let start;
+  if(state.workSettings.mode==='custom' && state.workSettings.customStart){
+    const anchor = parseDateLocal(state.workSettings.customStart);
+    anchor.setHours(0,0,0,0);
+    const diffDays = Math.floor((d-anchor)/86400000);
+    const block = Math.floor(diffDays/14);
+    start = addDays(anchor, block*14);
+  } else {
+    const yearStart = new Date(d.getFullYear(),0,1);
+    const anchor = startOfWeekMonday(yearStart);
+    const diffDays = Math.floor((d-anchor)/86400000);
+    const block = Math.floor(diffDays/14);
+    start = addDays(anchor, block*14);
+  }
+  start.setHours(0,0,0,0);
+  const end = addDays(start,13);
+  return `${displayDate(toISO(start))} to ${displayDate(toISO(end))}`;
+}
+function renderAll(){ deriveTheme(); renderSummary(); renderExpenses(); renderIncome(); renderWork(); syncThemeSelectors(); syncDateFormatSelector(); }
+function parseQuickExpenseInput(raw){
+  const value=(raw||'').trim();
+  if(!value) return {item:'', amount:null};
+  const match=value.match(/^(.*?)(-?\d+(?:\.\d{1,2})?)\s*$/);
+  if(!match) return {item:value, amount:null};
+  return {item:match[1].trim().replace(/[,:-]+$/,'').trim(), amount:parseFloat(match[2])};
+}
+function updateQuickExpenseHint(){
+  const parsed=parseQuickExpenseInput(expQuickInput.value);
+  const item=parsed.item||'—';
+  const price=(parsed.amount!==null && !Number.isNaN(parsed.amount)) ? fmtMoney(parsed.amount) : '—';
+  expQuickHint.textContent=`Item: ${item} · Price: ${price}`;
+  expCategory.value = parsed.item ? categorizeItem(parsed.item) : '';
+}
+function addExpense(){
+  const parsed=parseQuickExpenseInput(expQuickInput.value);
+  const item=parsed.item;
+  const amount=parsed.amount;
+  if(!item||!(amount>=0)) return;
+  const category=(expCategory.value.trim()||categorizeItem(item));
+  state.expenses.push({id:uid(), item, amount, category, date:expDate.value||currentISO, returned:false});
+  expQuickInput.value='';
+  expQuickHint.textContent='Item: — · Price: —';
+  expCategory.value='';
+  expDate.value=currentISO;
+  saveState();
+  renderAll();
+}
+function addIncome(){ const amount=parseFloat(incAmount.value); if(!(amount>=0)) return; state.income.push({id:uid(), source:incSource.value.trim(), amount, date:incDate.value||currentISO}); incSource.value=''; incAmount.value=''; incDate.value=currentISO; saveState(); renderAll(); }
+function addWork(){ const hours=parseFloat(workHours.value); const rate=workRate.value===''?null:parseFloat(workRate.value); if(!(hours>=0)) return; state.workSettings.mode=fortnightStartMode.value; state.workSettings.customStart=fortnightCustomStart.value||state.workSettings.customStart; state.work.push({id:uid(), place:workPlace.value.trim(), hours, rate, date:workDate.value||currentISO}); workPlace.value=''; workHours.value=''; workRate.value=''; workDate.value=currentISO; saveState(); renderAll(); }
+window.deleteExpense = function(id){ state.expenses=state.expenses.filter(x=>x.id!==id); saveState(); renderAll(); }
+window.deleteIncome = function(id){ state.income=state.income.filter(x=>x.id!==id); saveState(); renderAll(); }
+window.deleteWork = function(id){ state.work=state.work.filter(x=>x.id!==id); saveState(); renderAll(); }
+window.toggleReturned = function(id){ const x=state.expenses.find(y=>y.id===id); if(x) x.returned=!x.returned; saveState(); renderAll(); }
+function syncThemeSelectors(){ if(window.themeModeSelect) themeModeSelect.value=state.theme.mode || 'night'; }
+function syncDateFormatSelector(){ if(window.dateFormatSelect) dateFormatSelect.value=state.ui.dateFormat||'dd-mm-yyyy'; }
+function download(name, content, type='text/plain'){ const blob = new Blob([content],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),500); }
+function exportCsv(kind){ let rows=[]; if(kind==='expenses'){ rows=[['date','item','amount','category','returned'], ...state.expenses.map(x=>[x.date,x.item,x.amount,x.category,x.returned?'yes':'no'])]; }
+  if(kind==='income'){ rows=[['date','source','amount'], ...state.income.map(x=>[x.date,x.source,x.amount])]; }
+  if(kind==='work'){ rows=[['date','place','hours','rate'], ...state.work.map(x=>[x.date,x.place,x.hours,x.rate??''])]; }
+  const csv = rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\n'); download(`hishebi_${kind}.csv`,csv,'text/csv'); }
+function normalizeAmount(token){
+  token = token.replace(/[^0-9+\-.]/g,'');
+  if(!token) return null;
+  const parts = token.split('+').map(p=>Number(p)).filter(n=>!isNaN(n));
+  if(!parts.length) return null;
+  return parts.reduce((a,b)=>a+b,0);
+}
+function inferYear(monthIndex, defaultYear){
+  let year = Number(defaultYear);
+  const nowY=today.getFullYear(), nowM=today.getMonth();
+  if(year>nowY || (year===nowY && monthIndex>nowM)) year -= 1;
+  return year;
+}
+function parseExpenseImport(text, defaultYear){
+  const out=[];
+  const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean).filter(s=>!/^=+$/.test(s));
+  for(const line of lines){
+    const tokens=line.replace(/,/g,' ').split(/\s+/).filter(Boolean);
+    if(tokens.length<3) continue;
+    const mTok=tokens[0].toLowerCase().replace(/[^a-z]/g,'').slice(0,4);
+    const m = monthMap[mTok.slice(0,3)] ?? monthMap[mTok];
+    if(m===undefined) continue;
+    const day = parseInt(tokens[1].replace(/\D/g,''),10);
+    if(!day || day<1 || day>31) continue;
+    const year = inferYear(m, defaultYear);
+    const date = `${year}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    let i=2;
+    while(i<tokens.length){
+      let itemParts=[];
+      while(i<tokens.length && normalizeAmount(tokens[i])===null){ itemParts.push(tokens[i]); i++; }
+      if(!itemParts.length && i<tokens.length-1){ itemParts.push(tokens[i]); i++; }
+      const amount = i<tokens.length ? normalizeAmount(tokens[i]) : null;
+      if(amount!==null && itemParts.length){
+        const item = itemParts.join(' ').replace(/[()]/g,' ').trim();
+        out.push({id:uid(), item, amount, category:categorizeItem(item), date, returned:false});
+        i++;
+      } else { i++; }
+    }
+  }
+  return out;
+}
+function parseIncomeImport(text, defaultYear){
+  const out=[]; const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  for(const line of lines){
+    const m = line.match(/(\d{4}-\d{2}-\d{2})/);
+    const nums = line.match(/([0-9]+(?:\.[0-9]+)?)/g);
+    if(!nums) continue;
+    const amount=Number(nums.at(-1));
+    let date=m?m[1]:`${defaultYear}-${String(state.ui.selectedMonth+1).padStart(2,'0')}-01`;
+    const source=line.replace(date,'').replace(String(amount),'').trim();
+    out.push({id:uid(), source, amount, date});
+  }
+  return out;
+}
+function parseWorkImport(text, defaultYear){
+  const out=[]; const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  for(const line of lines){
+    const dateMatch = line.match(/(\d{4}-\d{2}-\d{2})/);
+    const nums = line.match(/([0-9]+(?:\.[0-9]+)?)/g);
+    if(!nums || nums.length<1) continue;
+    const date = dateMatch ? dateMatch[1] : `${defaultYear}-${String(state.ui.selectedMonth+1).padStart(2,'0')}-01`;
+    const hours = Number(nums[nums.length-2] ?? nums[0]);
+    const rate = nums.length>1 ? Number(nums[nums.length-1]) : null;
+    const place = line.replace(date,'').replace(String(hours),'').replace(rate!==null?String(rate):'','').trim();
+    out.push({id:uid(), place, hours, rate, date});
+  }
+  return out;
+}
+function clearData(scope, refDate){
+  if(scope==='all'){ state.expenses=[]; state.income=[]; state.work=[]; saveState(); renderAll(); return; }
+  const d = parseDateLocal(refDate || currentISO);
+  let start = new Date(d), end = new Date(d);
+  if(scope==='day'){}
+  if(scope==='week'){ start = startOfWeekMonday(d); end = addDays(start,6); }
+  if(scope==='month'){ start = new Date(d.getFullYear(), d.getMonth(),1); end = new Date(d.getFullYear(), d.getMonth()+1,0); }
+  const s=toISO(start), e=toISO(end);
+  const keep = arr => arr.filter(x => !(x.date>=s && x.date<=e));
+  state.expenses=keep(state.expenses); state.income=keep(state.income); state.work=keep(state.work);
+  saveState(); renderAll();
+}
+
+// event wiring
+settingsBtn.onclick=()=>settingsPanel.classList.add('open');
+closeSettingsBtn.onclick=()=>settingsPanel.classList.remove('open');
+settingsPanel.addEventListener('click',e=>{ if(e.target===settingsPanel) settingsPanel.classList.remove('open'); });
+addExpenseBtn.onclick=addExpense; addIncomeBtn.onclick=addIncome; addWorkBtn.onclick=addWork;
+expQuickInput.addEventListener('input', updateQuickExpenseHint);
+expQuickInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addExpense(); } });
+monthSelect.onchange=()=>{ state.ui.selectedMonth=Number(monthSelect.value); saveState(); renderAll(); };
+yearSelect.onchange=()=>{ state.ui.selectedYear=Number(yearSelect.value); saveState(); renderAll(); };
+document.querySelectorAll('.segment button').forEach(btn=>btn.onclick=()=>switchTab(btn.dataset.tab));
+toggleSummaryBtn.onclick=()=>{ state.ui.summaryOpen=!state.ui.summaryOpen; saveState(); renderAll(); };
+toggleCategoryBtn.onclick=()=>{ state.ui.showCategory=!state.ui.showCategory; saveState(); renderAll(); toggleCategoryBtn.textContent=(state.ui.showCategory?'Hide':'Show')+' category'; };
+toggleItemsBtn.onclick=()=>{ state.ui.showItems=!state.ui.showItems; saveState(); renderAll(); toggleItemsBtn.textContent=(state.ui.showItems?'Hide':'Show')+' item list'; };
+toggleAllExpensesBtn.onclick=()=>{ state.ui.showAllExpenses=!state.ui.showAllExpenses; saveState(); renderAll(); toggleAllExpensesBtn.textContent=(state.ui.showAllExpenses?'Hide':'Show')+' all expenses'; };
+themeModeSelect.onchange=()=>{ state.theme.mode=themeModeSelect.value; saveState(); renderAll(); };
+dateFormatSelect.onchange=()=>{ state.ui.dateFormat=dateFormatSelect.value; saveState(); renderAll(); };
+runImportBtn.onclick=()=>{ const text=importText.value.trim(); if(!text) return; const year=Number(importYear.value); let added=[]; if(importType.value==='expenses') added=parseExpenseImport(text,year); if(importType.value==='income') added=parseIncomeImport(text,year); if(importType.value==='work') added=parseWorkImport(text,year); state[importType.value]=state[importType.value].concat(added); saveState(); renderAll(); importText.value=''; alert(`Imported ${added.length} ${importType.value}.`); };
+exportExpensesBtn.onclick=()=>exportCsv('expenses'); exportIncomeBtn.onclick=()=>exportCsv('income'); exportWorkBtn.onclick=()=>exportCsv('work');
+exportJsonBtn.onclick=()=>download('hishebi_backup.json', JSON.stringify(state,null,2), 'application/json');
+runClearBtn.onclick=()=>{ const scope=clearScope.value; if(!confirm(scope==='all'?'Delete all saved data?':'Delete selected data range?')) return; clearData(scope,clearDate.value||currentISO); };
+fortnightStartMode.onchange=()=>{ state.workSettings.mode=fortnightStartMode.value; saveState(); renderAll(); };
+fortnightCustomStart.onchange=()=>{ state.workSettings.customStart=fortnightCustomStart.value; saveState(); renderAll(); };
+saveFirebaseConfigBtn.onclick=saveFirebaseConfig;
+googleLoginBtn.onclick=signInGoogle;
+googleLogoutBtn.onclick=signOutGoogle;
+syncUploadBtn.onclick=syncUpload;
+syncDownloadBtn.onclick=syncDownload;
+
+function initThemeMenus(){
+  if(themeModeSelect) themeModeSelect.value = state.theme.mode || 'night';
+}
+
+// install / pwa
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  installBanner.classList.add('show');
+  const note = document.getElementById('installManualNote');
+  if(note) note.textContent = 'Hishebi is ready to install. Tap Install.';
+});
+window.addEventListener('appinstalled', ()=>{
+  deferredPrompt = null;
+  installBanner.classList.remove('show');
+  const note = document.getElementById('installManualNote');
+  if(note) note.textContent = 'Hishebi is installed on your phone screen.';
+});
+function manualInstallMessage(){
+  const ua = navigator.userAgent || '';
+  const isFirefox = /Firefox\//i.test(ua);
+  const isChrome = /Chrome\//i.test(ua) && !/Edg\//i.test(ua) && !/OPR\//i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  const isFile = location.protocol === 'file:';
+  if(isFile){
+    return 'This downloaded single HTML file cannot be installed as an app. Open the PWA package from a real website or local web server, then use Install or Add to Home screen.';
+  }
+  if(isAndroid && isChrome){
+    return 'On Chrome Android, use the browser menu and choose Install app or Add to Home screen if the install prompt does not appear.';
+  }
+  if(isAndroid && isFirefox){
+    return 'On Firefox Android, use the browser menu and choose Install or Add to Home screen. Firefox install behavior can vary by version.';
+  }
+  return 'Use your browser menu and choose Install app or Add to Home screen.';
+}
+async function runInstall(){
+  if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches){
+    alert('Hishebi is already installed on your home screen.');
+    return;
+  }
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    try { await deferredPrompt.userChoice; } catch(e) {}
+    return;
+  }
+  const msg = manualInstallMessage();
+  alert(msg);
+  installBanner.classList.add('show');
+  const note = document.getElementById('installManualNote');
+  if(note) note.textContent = msg;
+}
+installBtn.onclick=runInstall; installBannerBtn.onclick=runInstall;
+if('serviceWorker' in navigator && location.protocol !== 'file:'){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+// boot
+initSelectors(); initThemeMenus(); setDefaultDates(); ['expDate','incDate','workDate','clearDate','fortnightCustomStart'].forEach(id=>{ const el=document.getElementById(id); if(!el) return; el.addEventListener('focus',()=>{ if(el.showPicker) try{ el.showPicker(); }catch(e){} }); }); updateQuickExpenseHint(); switchTab(state.ui.tab); fortnightStartMode.value=state.workSettings.mode; initFirebaseFromSavedConfig(); renderAll();
+</script>
+</body>
+</html>
