@@ -1,19 +1,23 @@
 # Hishebi
 Hishebi is a simple, fast, and offline-friendly personal finance tracker designed to help you manage your daily expenses, income, and work earnings in one place.  Built as a lightweight app, Hishebi runs directly on your phone without needing installation from an app store—just open and add to your home screen.
+
 📲 How to Use
 Open the app in your browser
 Tap “+” or Install / Add to Home Screen
 Start tracking your finances instantly
+
 🎯 Why Hishebi?
 No ads
 No subscriptions
 No login required
 Fast, minimal, and easy to use
+
 🚀 Perfect For
 Students
 Freelancers
 Daily expense tracking
 Simple budgeting
+
 ✨ Key Features
 💸 Track Expenses Easily
 Add expenses quickly using simple text like “pizza 40” and let the app auto-detect category and price.
